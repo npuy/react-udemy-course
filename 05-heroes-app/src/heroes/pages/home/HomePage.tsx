@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { use, useMemo } from "react";
 import { useSearchParams } from "react-router";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Heart } from "lucide-react";
@@ -12,8 +12,11 @@ import { CustomBreadcrumbs } from "@/components/custom/CustomBreadcrumbs";
 
 import { useHeroSummary } from "@/heroes/hooks/useHeroSummary";
 import { usePaginatedHero } from "@/heroes/hooks/usePaginatedHero";
+import { FavoriteHeroContext } from "@/heroes/context/FavoriteHeroContext";
 
 export const HomePage = () => {
+  const { favoriteCount, favorites } = use(FavoriteHeroContext);
+
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleTabClick = (tab: string, category: string) => {
@@ -64,7 +67,7 @@ export const HomePage = () => {
             onClick={() => handleTabClick("favorites", "all")}
           >
             <Heart className="h-4 w-4" />
-            Favorites (3)
+            Favorites ({favoriteCount})
           </TabsTrigger>
           <TabsTrigger
             value="heroes"
@@ -86,7 +89,7 @@ export const HomePage = () => {
         </TabsContent>
         <TabsContent value="favorites">
           {/* Show favorites */}
-          <HeroGrid heroes={heroesResponse?.heroes ?? []} />
+          <HeroGrid heroes={favorites} />
         </TabsContent>
         <TabsContent value="heroes">
           {/* Show all heroes */}
@@ -99,7 +102,9 @@ export const HomePage = () => {
       </Tabs>
 
       {/* Pagination */}
-      <CustomPagination totalPages={heroesResponse?.pages ?? 0} />
+      {tabState !== "favorites" && (
+        <CustomPagination totalPages={heroesResponse?.pages ?? 0} />
+      )}
     </>
   );
 };
